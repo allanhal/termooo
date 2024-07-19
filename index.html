@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-control" content="public" />
+
+    <title>Document</title>
+    <style>
+        body {
+            background-color: gray;
+        }
+
+        input {
+            width: 50px;
+            height: 50px;
+            border-radius: 10%;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 30px;
+        }
+
+        td {
+            padding: 5px;
+        }
+
+        table {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <td><input maxlength="1" id="0-0" /></td>
+            <td><input maxlength="1" id="0-1" /></td>
+            <td><input maxlength="1" id="0-2" /></td>
+            <td><input maxlength="1" id="0-3" /></td>
+            <td><input maxlength="1" id="0-4" /></td>
+        </tr>
+
+        <tr>
+            <td><input maxlength="1" id="1-0" /></td>
+            <td><input maxlength="1" id="1-1" /></td>
+            <td><input maxlength="1" id="1-2" /></td>
+            <td><input maxlength="1" id="1-3" /></td>
+            <td><input maxlength="1" id="1-4" /></td>
+        </tr>
+        <tr>
+            <td><input maxlength="1" id="2-0" /></td>
+            <td><input maxlength="1" id="2-1" /></td>
+            <td><input maxlength="1" id="2-2" /></td>
+            <td><input maxlength="1" id="2-3" /></td>
+            <td><input maxlength="1" id="2-4" /></td>
+        </tr>
+        <tr>
+            <td><input maxlength="1" id="3-0" /></td>
+            <td><input maxlength="1" id="3-1" /></td>
+            <td><input maxlength="1" id="3-2" /></td>
+            <td><input maxlength="1" id="3-3" /></td>
+            <td><input maxlength="1" id="3-4" /></td>
+        </tr>
+
+        <tr>
+            <td><input maxlength="1" id="4-0" /></td>
+            <td><input maxlength="1" id="4-1" /></td>
+            <td><input maxlength="1" id="4-2" /></td>
+            <td><input maxlength="1" id="4-3" /></td>
+            <td><input maxlength="1" id="4-4" /></td>
+        </tr>
+    </table>
+
+    <script>
+        let attempts = 1;
+        async function makeRequest() {
+            const response = await fetch(
+                "https://termoapi.onrender.com/game/start",
+                {
+                    method: "POST",
+                }
+            );
+            console.log(await response.json());
+        }
+
+        async function tryWord(id) {
+            var concatenacao = "";
+            for (let index = 0; index < 5; index++) {
+                var element = document.getElementById(`${id}-${index}`).value;
+                concatenacao += element;
+            }
+
+            const response = await fetch(
+                "https://termoapi.onrender.com/game/guess",
+                {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        word: concatenacao,
+                        attempts: attempts,
+                    }),
+                }
+            );
+            attempts = (attempts + 1 + 5) % 6;
+            // console.log(await response.json())
+            // const rest = [
+            //     {
+            //         "letter": "c",
+            //         "status": "correct"
+            //     },
+            //     {
+            //         "letter": "a",
+            //         "status": "correct"
+            //     },
+            //     {
+            //         "letter": "r",
+            //         "status": "correct"
+            //     },
+            //     {
+            //         "letter": "x",
+            //         "status": "absent"
+            //     },
+            //     {
+            //         "letter": "o",
+            //         "status": "correct"
+            //     },
+            // ]
+
+            const rest = await response.json();
+            for (let index = 0; index < 5; index++) {
+                var element = document.getElementById(`${id}-${index}`).value;
+
+                const elementRest = rest[index];
+                if (element == elementRest.letter) {
+                    console.log(element);
+                    if (elementRest.status === "present") {
+                        document.getElementById(`${id}-${index}`).style.backgroundColor =
+                            "yellow";
+                    } else if (elementRest.status === "absent") {
+                        document.getElementById(`${id}-${index}`).style.backgroundColor =
+                            "red";
+                    } else if (elementRest.status === "correct") {
+                        document.getElementById(`${id}-${index}`).style.backgroundColor =
+                            "green";
+                    }
+                    concatenacao += element;
+                }
+            }
+        }
+
+        function createTable() {
+            for (let i = 0; i < 5; i++) {
+                document.getElementById("tabela").innerHTML += `
+                    <tr>
+                `;
+                for (let j = 0; j < 5; j++) {
+                    console.log(i, j);
+                    document.getElementById("tabela").innerHTML += `
+                            <td><input maxlength='1' id="${i}-${j}"></input></td>
+                        `;
+                }
+
+                document.getElementById("tabela").innerHTML += `
+                            </tr>
+                            
+                            <button onclick="tryWord(${i})"id='button${i}'>
+                                Tentativa ${i + 1}
+                            </button>
+                `;
+            }
+        }
+        // createTable()
+        document
+            .getElementById("0-4")
+            .addEventListener("keydown", function (event) {
+                console.log("Code: " + event.which);
+                if (event.which == "13") tryWord(0);
+            });
+        document
+            .getElementById("1-4")
+            .addEventListener("keydown", function (event) {
+                console.log("Code: " + event.which);
+                if (event.which == "13") tryWord(1);
+            });
+        document
+            .getElementById("2-4")
+            .addEventListener("keydown", function (event) {
+                console.log("Code: " + event.which);
+                if (event.which == "13") tryWord(2);
+            });
+        document
+            .getElementById("3-4")
+            .addEventListener("keydown", function (event) {
+                console.log("Code: " + event.which);
+                if (event.which == "13") tryWord(3);
+            });
+        document
+            .getElementById("4-4")
+            .addEventListener("keydown", function (event) {
+                console.log("Code: " + event.which);
+                if (event.which == "13") tryWord(4);
+            });
+    </script>
+</body>
+
+</html>

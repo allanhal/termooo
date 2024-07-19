@@ -1,0 +1,79 @@
+openapi: 3.0.0
+info:
+  title: Termoo API
+  description: API para o jogo de adivinhação de palavras Termoo.
+  version: 1.0.0
+servers:
+  - url: https://termoapi.onrender.com
+    description: Servidor local
+
+paths:
+  /game/start:
+    post:
+      summary: Inicia um novo jogo
+      responses:
+        '200':
+          description: Jogo iniciado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Game started
+                  wordLength:
+                    type: integer
+                    example: 5
+
+  /game/guess:
+    post:
+      summary: Adivinha uma palavra no jogo atual
+      description: >
+        Este endpoint permite adivinhar uma palavra no jogo atual. Retorna uma resposta para cada letra da palavra, indicando se a letra está correta e na posição correta, se está presente mas na posição errada, ou se não está presente na palavra.
+        - `correct`: A letra está correta e na posição correta.
+        - `absent`: A letra não está presente na palavra.
+        - `present`: A letra está presente na palavra, mas na posição errada.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                word:
+                  type: string
+                  example: casas
+                attempts:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Resposta com o resultado da adivinhação
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    letter:
+                      type: string
+                      example: c
+                    status:
+                      type: string
+                      enum:
+                        - correct
+                        - absent
+                        - present
+                      example: correct
+        '400':
+          description: Requisição inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid word length, please provide a 5-letter word
